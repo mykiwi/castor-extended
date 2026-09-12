@@ -1,0 +1,37 @@
+{
+    "name": "mykiwi/castor-extended",
+    "description": "Reusable helpers for Castor tasks (Makefile-style rebuild logic, and more).",
+    "keywords": ["castor", "task-runner"],
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Romain Gautier",
+            "email": "www.claude.ai@romain.sh"
+        }
+    ],
+    "require": {
+        "php": ">=8.4",
+        "symfony/finder": "^6.4 || ^7.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^11.0",
+        "symfony/filesystem": "^6.4 || ^7.0"
+    },
+    "autoload": {
+        "files": [
+            "src/make.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mykiwi\\CastorExtended\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}
