@@ -21,9 +21,9 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: none
 
-      - run: composer install --no-interaction --prefer-dist
+      - uses: castor-php/setup-castor@v1.0.0
 
-      - run: vendor/bin/phpunit
+      - run: castor test
 
   static-analysis:
     name: Static analysis
@@ -37,9 +37,9 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - run: composer install --no-interaction --prefer-dist
+      - uses: castor-php/setup-castor@v1.0.0
 
-      - run: vendor/bin/phpstan analyse
+      - run: castor stan
 
   cs:
     name: Coding standards
@@ -53,6 +53,6 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - run: composer install --no-interaction --prefer-dist
+      - uses: castor-php/setup-castor@v1.0.0
 
-      - run: vendor/bin/php-cs-fixer fix --dry-run --diff
+      - run: castor cs
