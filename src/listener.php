@@ -162,8 +162,11 @@ function validate_requires_attributes(AfterBootEvent $event): void
         validate_no_requires_cycle($registry, $name, []);
     }
 
+    // On stderr, not stdout: this runs on every castor invocation, including
+    // `list --format=json` and shell completion, whose stdout must stay
+    // machine-readable.
     foreach (array_keys($unreferenced) as $name) {
-        io()->warning(\sprintf('Target "%s" is registered but no task uses "#[Requires(\'%s\')]".', $name, $name));
+        io()->getErrorStyle()->warning(\sprintf('Target "%s" is registered but no task uses "#[Requires(\'%s\')]".', $name, $name));
     }
 }
 
