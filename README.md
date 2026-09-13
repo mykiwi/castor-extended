@@ -61,6 +61,9 @@ function serve(): void
   functions sharing a name, fails as soon as Castor boots (any `castor`
   command), not only when the specific task
   using it finally runs.
+- A recipe that finishes without creating `target` is an error, not a
+  silent no-op: a broken build never gets mistaken for a fresh one on the
+  next run.
 
 ## `make()`
 

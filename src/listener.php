@@ -222,6 +222,18 @@ function validate_no_requires_cycle(array $registry, string $name, array $path, 
  */
 function run_targets_in_parallel(array $names): void
 {
+    if ([] === $names) {
+        return;
+    }
+
+    // A single name gains nothing from a Fiber, and keeps its own exception
+    // instead of parallel()'s generic wrapper.
+    if (1 === \count($names)) {
+        run_target($names[0]);
+
+        return;
+    }
+
     parallel(...array_map(static fn (string $n): \Closure => static fn () => run_target($n), $names));
 }
 
@@ -236,23 +248,29 @@ function run_target(string $name): void
     resolve_once($name, static function () use ($name): void {
         $descriptor = targets_registry()[$name];
 
-        if ($descriptor->requires) {
-            run_targets_in_parallel($descriptor->requires);
-        }
+        run_targets_in_parallel($descriptor->requires);
 
         $target = $descriptor->target;
-        $targetPath = $target->target ?? $name;
+        // Resolve once, up front: make() and the post-recipe check below must agree on the exact paths.
+        $paths = array_map(
+            static fn (string $path): string => make_absolute($path, $target->context),
+            (array) ($target->target ?? $name),
+        );
 
         make(
-            target: $targetPath,
+            target: $paths,
             prerequisites: $target->deps,
             context: $target->context,
-            callback: static function () use ($descriptor, $target, $targetPath): void {
+            callback: static function () use ($descriptor, $paths): void {
                 $descriptor->function->invoke();
 
-                if ($target->update) {
-                    foreach ((array) $targetPath as $t) {
-                        touch(make_absolute($t, $target->context));
+                foreach ($paths as $path) {
+                    if (!file_exists($path)) {
+                        throw new \RuntimeException(\sprintf('Recipe "%s()" for target "%s" ran but did not produce "%s".', $descriptor->function->getName(), $descriptor->name, $path));
+                    }
+
+                    if ($descriptor->target->update && !touch($path)) {
+                        throw new \RuntimeException(\sprintf('Could not touch "%s" after running the recipe for target "%s".', $path, $descriptor->name));
                     }
                 }
             },
@@ -263,9 +281,5 @@ function run_target(string $name): void
 #[AsListener(event: BeforeExecuteTaskEvent::class)]
 function run_requires_attributes(BeforeExecuteTaskEvent $event): void
 {
-    $names = target_requires_names($event->task);
-
-    if ($names) {
-        run_targets_in_parallel($names);
-    }
+    run_targets_in_parallel(target_requires_names($event->task));
 }

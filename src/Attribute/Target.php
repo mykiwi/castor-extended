@@ -18,10 +18,11 @@ class Target
      * @param string|string[]|Finder $deps
      * @param string|string[]|null   $target  defaults to the resolved $name
      * @param bool                   $update  force-touch $target after the
-     *                                        recipe runs, for targets whose
-     *                                        mtime the recipe doesn't
-     *                                        reliably bump on its own (e.g.
-     *                                        a directory)
+     *                                        recipe runs and has confirmed
+     *                                        it produced $target, for
+     *                                        targets whose mtime the recipe
+     *                                        doesn't reliably bump on its
+     *                                        own (e.g. a directory)
      * @param Context|null           $context resolves a relative $target/
      *                                        $deps path; defaults to the
      *                                        current Castor context
