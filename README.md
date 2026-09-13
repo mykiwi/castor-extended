@@ -3,10 +3,57 @@
 Reusable helpers for [Castor](https://castor.jolicode.com/) tasks, not (yet)
 part of Castor core.
 
+## `#[Target]`/`#[Requires]`
+
+Makefile-style rebuild logic: turn a plain function into a rebuild recipe
+with `#[Target]`, then run it before a task's own body — but only if needed
+— by referencing its name with `#[Requires]`.
+
+```php
+use Castor\Attribute\AsTask;
+use Mykiwi\CastorExtended\Attribute\Requires;
+use Mykiwi\CastorExtended\Attribute\Target;
+
+use function Castor\run;
+
+#[Target(deps: 'composer.lock', update: true)]
+function vendor(): void
+{
+    run(['composer', 'install', '--no-interaction', '--prefer-dist']);
+}
+
+#[AsTask(description: 'Run the test suite')]
+#[Requires('vendor')]
+function test(): void
+{
+    run(['vendor/bin/phpunit']);
+}
+```
+
+- `deps`: `string|string[]` file path(s) (glob supported, e.g. `'src/*.php'`,
+  or a Symfony `Finder` instance). The recipe runs only if `target` is
+  missing or older than `deps`. A relative path resolves against the
+  current Castor context's working directory (project root by default) —
+  not PHP's own cwd, which stays wherever `castor` was invoked from. Pass an
+  explicit `#[Target(..., context: new Context(...))]` to override it.
+- `target` defaults to the resolved name (here `vendor`); pass an explicit
+  path to check something more precise instead (e.g. a file inside it).
+- `update` (default `false`): touch `target` right after the recipe runs.
+  Turn on when the recipe doesn't bump `target`'s own mtime on its own
+  (typically a directory target, as above) — otherwise it reruns every time.
+- The name used by `#[Requires]` defaults to the function's own name (here
+  `vendor`); pass `#[Target(..., name: 'other')]` to override it.
+- `#[Requires('name')]` is repeatable — stack several on one task to declare
+  several independent rebuild needs.
+- An unknown name, or two `#[Target]` functions sharing a name, fails as soon
+  as Castor boots (any `castor` command), not only when the specific task
+  using it finally runs.
+
 ## `make()`
 
-Makefile-style rebuild logic: run a callback only if a target file is missing
-or older than its prerequisites.
+The low-level primitive behind `#[Target]`: run a callback only if a target
+file is missing or older than its prerequisites. Use it directly for a
+one-off rebuild that no other task needs to share.
 
 ```php
 use function Mykiwi\CastorExtended\make;
@@ -18,52 +65,9 @@ $ran = make(
 );
 ```
 
-- `$target`: `string|string[]`, real file path(s), no glob.
-- `$prerequisites`: `string|string[]` (glob patterns supported, e.g.
-  `'src/*.php'`) or a Symfony `Finder` instance for recursive matching.
-- Returns `true` if the callback ran, `false` if skipped.
-
-Calling `make()` directly in a task works, but repeating the same
-target/prerequisites/recipe in every task that needs it gets old fast — see
-[`#[Requires]`](#requires) below for a declarative, no-repeat version.
-
-See [`examples/castor.php`](examples/castor.php) for a runnable demo
-(`castor build` from the `examples/` directory).
-
-## `#[Requires]`
-
-Declarative wrapper around `make()`: register a rebuild recipe once by name,
-then reference it from any task with an attribute instead of calling `make()`
-(or a wrapper `install()`) in every task body.
-
-```php
-use Castor\Attribute\AsTask;
-use Mykiwi\CastorExtended\Attribute\Requires;
-
-use function Castor\run;
-use function Mykiwi\CastorExtended\register_requires;
-
-register_requires(
-    name: 'vendor',
-    target: __DIR__ . '/vendor/autoload.php',
-    prerequisites: __DIR__ . '/composer.lock',
-    recipe: ['composer', 'install', '--no-interaction', '--prefer-dist'],
-);
-
-#[AsTask(description: 'Run the test suite')]
-#[Requires('vendor')]
-function test(): void
-{
-    run(['vendor/bin/phpunit']);
-}
-```
-
-- Call `register_requires()` once per unique rebuild need, before defining
-  any task that references it.
-- `#[Requires('name')]` is repeatable — stack several on one task to declare
-  several independent rebuild needs.
-- An unregistered name fails as soon as Castor boots (any `castor` command),
-  not only when the specific task using it finally runs.
+Returns `true` if the callback ran, `false` if skipped. See
+[`examples/castor.php`](examples/castor.php) for a runnable demo (`castor
+build` from the `examples/` directory).
 
 ## Installation
 
@@ -103,9 +107,9 @@ import('composer://mykiwi/castor-extended', file: 'src/functions.php');
 > Castor import this repo's own root `castor.php` instead — its `test` /
 > `stan` / `cs` / `ci` dev tasks, not this library's functions.
 
-From then on, `make()`, `register_requires()` and `#[Requires]` are available
-on every `castor` command — nothing here needs to be repeated per run, only
-the setup above (once per machine) and the `import()` line (once, committed).
+From then on, `make()`, `#[Target]` and `#[Requires]` are available on every
+`castor` command — nothing here needs to be repeated per run, only the setup
+above (once per machine) and the `import()` line (once, committed).
 
 ### As a regular Composer dependency
 
@@ -113,9 +117,8 @@ the setup above (once per machine) and the `import()` line (once, committed).
 composer require mykiwi/castor-extended
 ```
 
-`make()`, `register_requires()` and `#[Requires]` are autoloaded
-automatically (via `composer.json`'s `autoload.files`/PSR-4), no `require`
-needed.
+Autoloaded automatically (via `composer.json`'s `autoload.files`/PSR-4), no
+`require` needed.
 
 ## Contributing / local development
 

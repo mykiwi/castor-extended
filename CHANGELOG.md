@@ -11,3 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `make()`: run a callback only if a target file is missing or older than its
   prerequisites (Makefile-style rebuild logic).
+- `#[Target]`/`#[Requires]`: declare a rebuild recipe once as a plain
+  function, then reference it from any task by name.

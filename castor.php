@@ -2,21 +2,21 @@
 
 use Castor\Attribute\AsTask;
 use Mykiwi\CastorExtended\Attribute\Requires;
+use Mykiwi\CastorExtended\Attribute\Target;
 
 use function Castor\io;
 use function Castor\run;
-use function Mykiwi\CastorExtended\register_requires;
 
 require_once __DIR__ . '/src/make.php';
 require_once __DIR__ . '/src/Attribute/Requires.php';
+require_once __DIR__ . '/src/Attribute/Target.php';
 require_once __DIR__ . '/src/listener.php';
 
-register_requires(
-    name: 'vendor',
-    target: __DIR__ . '/vendor/autoload.php',
-    prerequisites: __DIR__ . '/composer.lock',
-    recipe: ['composer', 'install', '--no-interaction', '--prefer-dist'],
-);
+#[Target(deps: 'composer.lock', update: true)]
+function vendor(): void
+{
+    run(['composer', 'install', '--no-interaction', '--prefer-dist']);
+}
 
 #[AsTask(description: 'Run the test suite')]
 #[Requires('vendor')]
