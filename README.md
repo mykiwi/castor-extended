@@ -1,5 +1,7 @@
 # Castor extended
 
+> ⚠️ Pet project (for now) 🦾
+
 Reusable helpers for [Castor](https://castor.jolicode.com/) tasks, not (yet)
 part of Castor core.
 
