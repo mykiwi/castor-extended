@@ -22,11 +22,18 @@ function vendor(): void
     run(['composer', 'install', '--no-interaction', '--prefer-dist']);
 }
 
-#[AsTask(description: 'Run the test suite')]
+#[Target(target: 'public/bundles', deps: 'composer.lock', update: true)]
 #[Requires('vendor')]
-function test(): void
+function assets(): void
 {
-    run(['vendor/bin/phpunit']);
+    run(['bin/console', 'assets:install', 'public']);
+}
+
+#[AsTask(description: 'Start the local dev server')]
+#[Requires('assets')]
+function serve(): void
+{
+    run(['symfony', 'serve']);
 }
 ```
 
@@ -43,10 +50,14 @@ function test(): void
   (typically a directory target, as above) — otherwise it reruns every time.
 - The name used by `#[Requires]` defaults to the function's own name (here
   `vendor`); pass `#[Target(..., name: 'other')]` to override it.
-- `#[Requires('name')]` is repeatable — stack several on one task to declare
-  several independent rebuild needs.
-- An unknown name, or two `#[Target]` functions sharing a name, fails as soon
-  as Castor boots (any `castor` command), not only when the specific task
+- `#[Requires('name')]` is repeatable — stack several on one task (or on
+  another `#[Target]` function, as `assets` does above) to declare several
+  rebuild needs. Independent ones run concurrently (Castor's Fiber-based
+  `parallel()`, like `make -jN`); `assets` still waits for `vendor` to finish
+  first, since it declares that dependency itself.
+- An unknown name, a circular `#[Requires]` chain, or two `#[Target]`
+  functions sharing a name, fails as soon as Castor boots (any `castor`
+  command), not only when the specific task
   using it finally runs.
 
 ## `make()`
