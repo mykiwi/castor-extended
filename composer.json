@@ -1,13 +1,13 @@
 {
     "name": "mykiwi/castor-extended",
-    "description": "Reusable helpers for Castor tasks (Makefile-style rebuild logic, and more).",
-    "keywords": ["castor", "task-runner"],
+    "description": "Makefile logic for Castor",
+    "keywords": ["castor", "task-runner", "Makefile"],
     "license": "MIT",
     "type": "library",
     "authors": [
         {
             "name": "Romain Gautier",
-            "email": "www.claude.ai@romain.sh"
+            "email": "mykiwi@users.noreply.github.com"
         }
     ],
     "require": {
