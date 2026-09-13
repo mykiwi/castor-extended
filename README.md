@@ -1,6 +1,6 @@
 # Castor extended
 
-> ⚠️ Pet project (for now) 🦾
+> ⚠️ Pet project (for now) made with LLMs 🦾
 
 Reusable helpers for [Castor](https://castor.jolicode.com/) tasks, not (yet)
 part of Castor core.
