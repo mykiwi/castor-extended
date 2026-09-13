@@ -65,7 +65,7 @@ class ResolveOnceTest extends TestCase
     }
 
     #[Test]
-    public function itDoesNotHangWaitersForeverWhenTheBuildFails(): void
+    public function itFailsWaitersAndLaterCallersWhenTheBuildFails(): void
     {
         $name = 'failing-' . uniqid();
 
@@ -76,11 +76,10 @@ class ResolveOnceTest extends TestCase
                 throw new \RuntimeException('boom');
             });
         });
-        $fiberB = new \Fiber(static function () use ($name): void {
-            resolve_once($name, static function (): void {
-                self::fail('Waiter must not re-run the build after a failed attempt.');
-            });
-        });
+        $neverRuns = static function (): void {
+            self::fail('The build must not run again after a failed attempt.');
+        };
+        $fiberB = new \Fiber(static fn () => resolve_once($name, $neverRuns));
 
         $fiberA->start();
         $fiberB->start();
@@ -92,7 +91,22 @@ class ResolveOnceTest extends TestCase
             self::assertSame('boom', $e->getMessage());
         }
 
-        $fiberB->resume();
+        // Castor's parallel() keeps resuming the other Fibers after one
+        // failed: the waiter must not carry on as if the target were built.
+        try {
+            $fiberB->resume();
+            self::fail('Waiter must fail once the in-flight build has failed.');
+        } catch (\RuntimeException $e) {
+            self::assertSame(\sprintf('Target "%s" already failed earlier in this run.', $name), $e->getMessage());
+            self::assertSame('boom', $e->getPrevious()?->getMessage());
+        }
+
         self::assertTrue($fiberB->isTerminated());
+
+        // Same for any later caller, e.g. a task run after the failure.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(\sprintf('Target "%s" already failed earlier in this run.', $name));
+
+        resolve_once($name, $neverRuns);
     }
 }

@@ -23,30 +23,18 @@ function &targets_registry(): array
 }
 
 /**
- * Names of #[Target]s already resolved (built or confirmed fresh) during
- * this process, so a target required by several others only runs once.
+ * Per-process state of every #[Target] that run_target() has been asked to
+ * resolve, so a target required by several others only runs once:
+ * `'pending'` while its recipe is in-flight, `true` once built or confirmed
+ * fresh, or the Throwable its recipe threw.
  *
- * @return array<string, true>
+ * @return array<string, 'pending'|true|\Throwable>
  */
-function &resolved_targets_registry(): array
+function &target_states_registry(): array
 {
-    static $resolved = [];
+    static $states = [];
 
-    return $resolved;
-}
-
-/**
- * Names of #[Target]s currently being resolved, so a concurrent resolution
- * of the same name (e.g. two siblings run in parallel both #[Requires] it)
- * waits for the in-flight one instead of running the recipe twice.
- *
- * @return array<string, true>
- */
-function &pending_targets_registry(): array
-{
-    static $pending = [];
-
-    return $pending;
+    return $states;
 }
 
 /**
@@ -56,39 +44,43 @@ function &pending_targets_registry(): array
  * A concurrent caller instead busy-waits, via Fiber::suspend(), until the
  * in-flight call finishes.
  *
- * If $build throws, the name is left unresolved and un-pending: a waiter
- * simply returns, without re-running $build itself, on the assumption
- * that the failure will already surface from the original caller.
+ * If $build throws, every other caller for $name (waiting or later) throws
+ * too, so nothing depending on a failed target ever runs its own recipe
+ * on top of it. Castor's parallel() keeps resuming sibling Fibers after
+ * one of them failed, so a waiter can't rely on the original failure
+ * having stopped the run.
  */
 function resolve_once(string $name, callable $build): void
 {
-    $resolved = &resolved_targets_registry();
-    $pending = &pending_targets_registry();
+    $states = &target_states_registry();
+    // Re-read through a call each time: the in-flight Fiber mutates the
+    // registry while this one is suspended.
+    $current = static fn (): string|bool|\Throwable|null => target_states_registry()[$name] ?? null;
 
-    if (isset($resolved[$name])) {
+    while ('pending' === $current() && \Fiber::getCurrent()) {
+        \Fiber::suspend();
+    }
+
+    $state = $current();
+
+    if ($state instanceof \Throwable) {
+        throw new \RuntimeException(\sprintf('Target "%s" already failed earlier in this run.', $name), previous: $state);
+    }
+
+    if (null !== $state) {
         return;
     }
 
-    if (isset($pending[$name])) {
-        while (isset($pending[$name]) && !isset($resolved[$name])) {
-            if (!\Fiber::getCurrent()) {
-                break;
-            }
-
-            \Fiber::suspend();
-        }
-
-        return;
-    }
-
-    $pending[$name] = true;
+    $states[$name] = 'pending';
 
     try {
         $build();
 
-        $resolved[$name] = true;
-    } finally {
-        unset($pending[$name]);
+        $states[$name] = true;
+    } catch (\Throwable $e) {
+        $states[$name] = $e;
+
+        throw $e;
     }
 }
 
