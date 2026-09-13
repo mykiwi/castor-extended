@@ -3,7 +3,6 @@
 namespace Mykiwi\CastorExtended\Attribute;
 
 use Castor\Context;
-use Symfony\Component\Finder\Finder;
 
 /**
  * Marks a function as a build recipe: its body runs only if $target is
@@ -15,20 +14,20 @@ use Symfony\Component\Finder\Finder;
 class Target
 {
     /**
-     * @param string|string[]|Finder $deps
-     * @param string|string[]|null   $target  defaults to the resolved $name
-     * @param bool                   $update  force-touch $target after the
-     *                                        recipe runs and has confirmed
-     *                                        it produced $target, for
-     *                                        targets whose mtime the recipe
-     *                                        doesn't reliably bump on its
-     *                                        own (e.g. a directory)
-     * @param Context|null           $context resolves a relative $target/
-     *                                        $deps path; defaults to the
-     *                                        current Castor context
+     * @param string|string[]      $deps
+     * @param string|string[]|null $target  defaults to the resolved $name
+     * @param bool                 $update  force-touch $target after the
+     *                                      recipe runs and has confirmed it
+     *                                      produced $target, for targets
+     *                                      whose mtime the recipe doesn't
+     *                                      reliably bump on its own (e.g. a
+     *                                      directory)
+     * @param Context|null         $context resolves a relative $target/
+     *                                      $deps path; defaults to the
+     *                                      current Castor context
      */
     public function __construct(
-        public readonly string|array|Finder $deps,
+        public readonly string|array $deps,
         public readonly string|array|null $target = null,
         public readonly ?string $name = null,
         public readonly bool $update = false,
