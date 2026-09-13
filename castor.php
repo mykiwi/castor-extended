@@ -7,10 +7,7 @@ use Mykiwi\CastorExtended\Attribute\Target;
 use function Castor\io;
 use function Castor\run;
 
-require_once __DIR__ . '/src/make.php';
-require_once __DIR__ . '/src/Attribute/Requires.php';
-require_once __DIR__ . '/src/Attribute/Target.php';
-require_once __DIR__ . '/src/listener.php';
+require_once __DIR__ . '/src/functions.php';
 
 #[Target(deps: 'composer.lock', update: true)]
 function vendor(): void

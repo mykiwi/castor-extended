@@ -3,6 +3,7 @@
 namespace Mykiwi\CastorExtended;
 
 use Castor\Attribute\AsListener;
+use Castor\Attribute\AsTask;
 use Castor\Console\Command\TaskCommand;
 use Castor\Event\AfterBootEvent;
 use Castor\Event\BeforeExecuteTaskEvent;
@@ -13,7 +14,7 @@ use function Castor\io;
 use function Castor\parallel;
 
 /**
- * @return array<string, \ReflectionFunction>
+ * @return array<string, TargetDescriptor>
  */
 function &targets_registry(): array
 {
@@ -85,44 +86,64 @@ function resolve_once(string $name, callable $build): void
 }
 
 /**
- * @return string[]
+ * @return list<string>
  */
 function target_requires_names(\ReflectionFunction|TaskCommand $reflection): array
 {
-    return array_map(
+    // getAttributes() is typed `array`, not `list`, in the reflection stubs,
+    // so array_map() alone isn't inferred as list<string>; array_values()
+    // re-indexes and is what phpstan recognizes as producing a list.
+    return array_values(array_map(
         static fn (\ReflectionAttribute $attribute): string => $attribute->newInstance()->name,
         $reflection->getAttributes(Requires::class),
-    );
+    ));
 }
 
 /**
- * Discovers every function carrying `#[Target]` and indexes it by name
- * (the attribute's `name`, or the function's own name).
+ * Discovers every function carrying `#[Target]`, indexes it by name (the
+ * attribute's `name`, or the function's own name), then fails fast on any
+ * misconfiguration: see validate_requires_attributes().
  *
  * Uses AfterBootEvent, not FunctionsResolvedEvent: the latter fires once per
  * mount, and this listener only exists once *this* package's own mount has
  * loaded — by then, functions from an earlier mount (e.g. the consuming
  * project's own castor.php) already had their FunctionsResolvedEvent come
  * and go unseen. AfterBootEvent fires once, after every mount is loaded.
+ *
+ * Scans functions rather than `$event->application->all()` for the tasks:
+ * Symfony drops a command whose `#[AsTask(enabled: ...)]` is false from the
+ * application, and a disabled task's `#[Requires]` still deserves checking.
  */
 #[AsListener(event: AfterBootEvent::class)]
 function collect_targets(AfterBootEvent $event): void
 {
     $registry = &targets_registry();
+    $taskRequires = [];
 
     foreach (get_defined_functions()['user'] as $function) {
         $reflection = new \ReflectionFunction($function);
 
+        if ([] !== $reflection->getAttributes(AsTask::class)) {
+            $taskRequires[$reflection->getName()] = target_requires_names($reflection);
+        }
+
         foreach ($reflection->getAttributes(Target::class) as $attribute) {
-            $name = $attribute->newInstance()->name ?? $reflection->getShortName();
+            $target = $attribute->newInstance();
+            $name = $target->name ?? $reflection->getShortName();
 
             if (isset($registry[$name])) {
-                throw new \LogicException(\sprintf('Target "%s" is already registered by "%s()". Give one of them a different #[Target(name: ...)], or remove the duplicate.', $name, $registry[$name]->getName()));
+                throw new \LogicException(\sprintf('Target "%s" is already registered by "%s()". Give one of them a different #[Target(name: ...)], or remove the duplicate.', $name, $registry[$name]->function->getName()));
             }
 
-            $registry[$name] = $reflection;
+            if ($reflection->getNumberOfRequiredParameters() > 0) {
+                throw new \LogicException(\sprintf('#[Target] function "%s()" must not have required parameters: its recipe is invoked without any.', $reflection->getName()));
+            }
+
+            $registry[$name] = new TargetDescriptor($name, $reflection, $target, target_requires_names($reflection));
         }
     }
+
+    validate_requires_attributes($registry, $taskRequires);
 }
 
 /**
@@ -131,11 +152,12 @@ function collect_targets(AfterBootEvent $event): void
  * only when that specific recipe finally runs. Also catches a circular
  * #[Requires] chain, and warns about #[Target] functions nothing ever
  * references (likely a typo or leftover).
+ *
+ * @param array<string, TargetDescriptor> $registry
+ * @param array<string, list<string>>     $taskRequires #[Requires] names, by task function name
  */
-#[AsListener(event: AfterBootEvent::class)]
-function validate_requires_attributes(AfterBootEvent $event): void
+function validate_requires_attributes(array $registry, array $taskRequires): void
 {
-    $registry = targets_registry();
     $unreferenced = array_fill_keys(array_keys($registry), true);
 
     $checkNames = static function (array $names, string $describedAs) use ($registry, &$unreferenced): void {
@@ -148,18 +170,18 @@ function validate_requires_attributes(AfterBootEvent $event): void
         }
     };
 
-    foreach ($event->application->all() as $command) {
-        if ($command instanceof TaskCommand) {
-            $checkNames(target_requires_names($command), \sprintf('task "%s"', $command->getName()));
-        }
+    foreach ($taskRequires as $function => $names) {
+        $checkNames($names, \sprintf('task "%s()"', $function));
     }
 
-    foreach ($registry as $name => $reflection) {
-        $checkNames(target_requires_names($reflection), \sprintf('target "%s"', $name));
+    foreach ($registry as $name => $descriptor) {
+        $checkNames($descriptor->requires, \sprintf('target "%s"', $name));
     }
+
+    $acyclic = [];
 
     foreach (array_keys($registry) as $name) {
-        validate_no_requires_cycle($registry, $name, []);
+        validate_no_requires_cycle($registry, $name, [], $acyclic);
     }
 
     // On stderr, not stdout: this runs on every castor invocation, including
@@ -171,25 +193,32 @@ function validate_requires_attributes(AfterBootEvent $event): void
 }
 
 /**
- * @param array<string, \ReflectionFunction> $registry
- * @param string[]                           $path     names visited so far, in order
+ * @param array<string, TargetDescriptor> $registry
+ * @param list<string>                    $path     names visited so far, in order
+ * @param array<string, true>             $acyclic  names whose whole #[Requires] subgraph is already known to be cycle-free
  */
-function validate_no_requires_cycle(array $registry, string $name, array $path): void
+function validate_no_requires_cycle(array $registry, string $name, array $path, array &$acyclic): void
 {
+    if (isset($acyclic[$name])) {
+        return;
+    }
+
     if (\in_array($name, $path, true)) {
         throw new \LogicException(\sprintf('Circular #[Requires] chain: %s.', implode(' -> ', [...$path, $name])));
     }
 
-    foreach (target_requires_names($registry[$name]) as $nestedName) {
-        validate_no_requires_cycle($registry, $nestedName, [...$path, $name]);
+    foreach ($registry[$name]->requires as $nestedName) {
+        validate_no_requires_cycle($registry, $nestedName, [...$path, $name], $acyclic);
     }
+
+    $acyclic[$name] = true;
 }
 
 /**
  * Resolves each of $names concurrently, via Castor's Fiber-based
  * `parallel()`, mirroring `make -jN`.
  *
- * @param string[] $names
+ * @param list<string> $names
  */
 function run_targets_in_parallel(array $names): void
 {
@@ -205,22 +234,21 @@ function run_targets_in_parallel(array $names): void
 function run_target(string $name): void
 {
     resolve_once($name, static function () use ($name): void {
-        $reflection = targets_registry()[$name];
-        $nestedNames = target_requires_names($reflection);
+        $descriptor = targets_registry()[$name];
 
-        if ($nestedNames) {
-            run_targets_in_parallel($nestedNames);
+        if ($descriptor->requires) {
+            run_targets_in_parallel($descriptor->requires);
         }
 
-        $target = $reflection->getAttributes(Target::class)[0]->newInstance();
+        $target = $descriptor->target;
         $targetPath = $target->target ?? $name;
 
         make(
             target: $targetPath,
             prerequisites: $target->deps,
             context: $target->context,
-            callback: static function () use ($reflection, $target, $targetPath): void {
-                $reflection->invoke();
+            callback: static function () use ($descriptor, $target, $targetPath): void {
+                $descriptor->function->invoke();
 
                 if ($target->update) {
                     foreach ((array) $targetPath as $t) {

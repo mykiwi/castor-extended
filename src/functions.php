@@ -9,4 +9,5 @@
 require_once __DIR__ . '/make.php';
 require_once __DIR__ . '/Attribute/Requires.php';
 require_once __DIR__ . '/Attribute/Target.php';
+require_once __DIR__ . '/TargetDescriptor.php';
 require_once __DIR__ . '/listener.php';
