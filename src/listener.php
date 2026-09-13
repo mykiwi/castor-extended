@@ -3,8 +3,9 @@
 namespace Mykiwi\CastorExtended;
 
 use Castor\Attribute\AsListener;
+use Castor\Console\Command\TaskCommand;
+use Castor\Event\AfterBootEvent;
 use Castor\Event\BeforeExecuteTaskEvent;
-use Castor\Event\FunctionsResolvedEvent;
 use Mykiwi\CastorExtended\Attribute\Requires;
 
 use function Castor\io;
@@ -38,19 +39,29 @@ function &requires_registry(): array
  * Fails fast: catches an unregistered #[Requires] name as soon as Castor
  * boots, instead of only when that specific task finally runs. Also warns
  * about registrations no task ever references (likely a typo or leftover).
+ *
+ * Uses AfterBootEvent, not FunctionsResolvedEvent: the latter fires once per
+ * mount, and this listener only exists once *this* package's own mount has
+ * loaded — by then, tasks from an earlier mount (e.g. the consuming
+ * project's own castor.php) already had their FunctionsResolvedEvent come
+ * and go unseen. AfterBootEvent fires once, after every mount is loaded.
  */
-#[AsListener(event: FunctionsResolvedEvent::class)]
-function validate_requires_attributes(FunctionsResolvedEvent $event): void
+#[AsListener(event: AfterBootEvent::class)]
+function validate_requires_attributes(AfterBootEvent $event): void
 {
     $registry = requires_registry();
     $unreferenced = array_fill_keys(array_keys($registry), true);
 
-    foreach ($event->taskDescriptors as $taskDescriptor) {
-        foreach ($taskDescriptor->function->getAttributes(Requires::class) as $attribute) {
+    foreach ($event->application->all() as $command) {
+        if (!$command instanceof TaskCommand) {
+            continue;
+        }
+
+        foreach ($command->getAttributes(Requires::class) as $attribute) {
             $name = $attribute->newInstance()->name;
 
             if (!isset($registry[$name])) {
-                throw new \LogicException(\sprintf('Unknown requirement "%s" on task "%s()". Call register_requires("%s", ...) before defining tasks.', $name, $taskDescriptor->function->getName(), $name));
+                throw new \LogicException(\sprintf('Unknown requirement "%s" on task "%s". Call register_requires("%s", ...) before defining tasks.', $name, $command->getName(), $name));
             }
 
             unset($unreferenced[$name]);
