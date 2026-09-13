@@ -137,8 +137,17 @@ above (once per machine) and the `import()` line (once, committed).
 composer require mykiwi/castor-extended
 ```
 
-Autoloaded automatically (via `composer.json`'s `autoload.files`/PSR-4), no
-`require` needed.
+Then, in the project's `castor.php`:
+
+```php
+require_once __DIR__ . '/vendor/mykiwi/castor-extended/src/functions.php';
+```
+
+`make()` alone works without this: it's a plain function, autoloaded via
+PSR-4 like any other class. But `#[Target]`/`#[Requires]` need it: Castor
+only discovers `#[AsListener]` functions defined while it loads `castor.php`
+itself, and a function preloaded earlier by Composer's own autoloader
+(`autoload.files`) is invisible to that discovery pass.
 
 ## Contributing / local development
 

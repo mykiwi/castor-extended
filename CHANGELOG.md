@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- As a regular Composer dependency, the project's `castor.php` must now
+  `require_once __DIR__ . '/vendor/mykiwi/castor-extended/src/functions.php';`
+  for `#[Target]`/`#[Requires]` to work: Castor never saw the listeners
+  when they were only preloaded via Composer's `autoload.files`.
+
 ### Added
 
 - `make()`: run a callback only if a target file is missing or older than its

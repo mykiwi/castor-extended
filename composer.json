@@ -23,8 +23,7 @@
     },
     "autoload": {
         "files": [
-            "src/make.php",
-            "src/listener.php"
+            "src/make.php"
         ],
         "psr-4": {
             "Mykiwi\\CastorExtended\\": "src/"
