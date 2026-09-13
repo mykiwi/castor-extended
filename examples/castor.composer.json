@@ -1,0 +1,19 @@
+{
+    "name": "mykiwi/castor-extended-example",
+    "description": "Example consuming mykiwi/castor-extended as a Castor remote import",
+    "type": "castor-project",
+    "authors": [
+        {
+            "name": "Romain Gautier",
+            "email": "mail@romain.sh"
+        }
+    ],
+    "require": {
+        "mykiwi/castor-extended": "dev-main"
+    },
+    "repositories": [{
+        "name": "mykiwi-castor-extended",
+        "type": "vcs",
+        "url": "https://github.com/mykiwi/castor-extended"
+    }]
+}

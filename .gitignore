@@ -2,11 +2,10 @@
 /composer.lock
 /.phpunit.cache
 /.php-cs-fixer.cache
-/examples/build/
 
 # Castor
-/.castor.stub.php
-/.castor/
+.castor.stub.php
+.castor/
 
 # Devenv
 .devenv*

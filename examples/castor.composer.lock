@@ -1,0 +1,150 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "dbe2e44b596fdbd9a7b76636824d5dec",
+    "packages": [
+        {
+            "name": "mykiwi/castor-extended",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mykiwi/castor-extended.git",
+                "reference": "c45b20dc33d9c06ac962c117e086a71ce2eed288"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mykiwi/castor-extended/zipball/c45b20dc33d9c06ac962c117e086a71ce2eed288",
+                "reference": "c45b20dc33d9c06ac962c117e086a71ce2eed288",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "symfony/finder": "^6.4 || ^7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.59",
+                "jolicode/castor": "^1.5,<1.6",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^11.0",
+                "symfony/filesystem": "^6.4 || ^7.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/make.php"
+                ],
+                "psr-4": {
+                    "Mykiwi\\CastorExtended\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Mykiwi\\CastorExtended\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Romain Gautier",
+                    "email": "mykiwi@users.noreply.github.com"
+                }
+            ],
+            "description": "Makefile logic for Castor",
+            "keywords": [
+                "Makefile",
+                "castor",
+                "task-runner"
+            ],
+            "support": {
+                "source": "https://github.com/mykiwi/castor-extended/tree/main",
+                "issues": "https://github.com/mykiwi/castor-extended/issues"
+            },
+            "time": "2026-09-13T21:36:21+00:00"
+        },
+        {
+            "name": "symfony/finder",
+            "version": "v7.4.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/finder.git",
+                "reference": "5ce28827081f6d1f0c32eaf3882750f19cb5bbe6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/5ce28827081f6d1f0c32eaf3882750f19cb5bbe6",
+                "reference": "5ce28827081f6d1f0c32eaf3882750f19cb5bbe6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "symfony/filesystem": "^6.4|^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Finder\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Finds files and directories via an intuitive fluent interface",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/finder/tree/v7.4.17"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-21T12:09:28+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "mykiwi/castor-extended": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}
