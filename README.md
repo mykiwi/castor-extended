@@ -63,8 +63,7 @@ function serve(): void
   first, since it declares that dependency itself.
 - An unknown name, a circular `#[Requires]` chain, or two `#[Target]`
   functions sharing a name, fails as soon as Castor boots (any `castor`
-  command), not only when the specific task
-  using it finally runs.
+  command), not only when the specific task using it finally runs.
 - A recipe that finishes without creating `target` is an error, not a
   silent no-op: a broken build never gets mistaken for a fresh one on the
   next run.
