@@ -39,12 +39,14 @@ function serve(): void
 }
 ```
 
-- `deps`: `string|string[]` file path(s) (glob supported, e.g. `'src/*.php'`,
-  or a Symfony `Finder` instance). The recipe runs only if `target` is
+- `deps`: `string|string[]` file path(s), or shell-style glob pattern(s)
+  (`*`, `?`, `[...]`, `{a,b}`; `**` is not recursive — call `make()` directly
+  with a Symfony `Finder` for that). The recipe runs only if `target` is
   missing or older than `deps`. A relative path resolves against the
   current Castor context's working directory (project root by default) —
   not PHP's own cwd, which stays wherever `castor` was invoked from. Pass an
-  explicit `#[Target(..., context: new Context(...))]` to override it.
+  explicit `#[Target(..., context: new Context(...))]` to override it. A
+  missing path or a pattern matching no file fails immediately.
 - `target` defaults to the resolved name (here `vendor`); pass an explicit
   path to check something more precise instead (e.g. a file inside it).
 - `update` (default `false`): touch `target` right after the recipe runs.
