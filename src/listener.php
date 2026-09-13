@@ -36,6 +36,63 @@ function &resolved_targets_registry(): array
 }
 
 /**
+ * Names of #[Target]s currently being resolved, so a concurrent resolution
+ * of the same name (e.g. two siblings run in parallel both #[Requires] it)
+ * waits for the in-flight one instead of running the recipe twice.
+ *
+ * @return array<string, true>
+ */
+function &pending_targets_registry(): array
+{
+    static $pending = [];
+
+    return $pending;
+}
+
+/**
+ * Runs $build for $name at most once per process, even if called again
+ * for the same $name while the first call is still in-flight (including
+ * across Fibers suspended mid-build, e.g. while a subprocess is running).
+ * A concurrent caller instead busy-waits, via Fiber::suspend(), until the
+ * in-flight call finishes.
+ *
+ * If $build throws, the name is left unresolved and un-pending: a waiter
+ * simply returns, without re-running $build itself, on the assumption
+ * that the failure will already surface from the original caller.
+ */
+function resolve_once(string $name, callable $build): void
+{
+    $resolved = &resolved_targets_registry();
+    $pending = &pending_targets_registry();
+
+    if (isset($resolved[$name])) {
+        return;
+    }
+
+    if (isset($pending[$name])) {
+        while (isset($pending[$name]) && !isset($resolved[$name])) {
+            if (!\Fiber::getCurrent()) {
+                break;
+            }
+
+            \Fiber::suspend();
+        }
+
+        return;
+    }
+
+    $pending[$name] = true;
+
+    try {
+        $build();
+
+        $resolved[$name] = true;
+    } finally {
+        unset($pending[$name]);
+    }
+}
+
+/**
  * @return string[]
  */
 function target_requires_names(\ReflectionFunction|TaskCommand $reflection): array
@@ -134,44 +191,50 @@ function validate_no_requires_cycle(array $registry, string $name, array $path):
 }
 
 /**
+ * Resolves each of $names concurrently, via Castor's Fiber-based
+ * `parallel()`, mirroring `make -jN`.
+ *
+ * @param string[] $names
+ */
+function run_targets_in_parallel(array $names): void
+{
+    parallel(...array_map(static fn (string $n): \Closure => static fn () => run_target($n), $names));
+}
+
+/**
  * Resolves #[Target] $name: recursively resolves whatever it #[Requires]
- * first (siblings run concurrently via Castor's Fiber-based `parallel()`,
- * mirroring `make -jN`), then runs its own recipe, only if needed.
+ * first, then runs its own recipe, only if needed. Guarded by
+ * resolve_once() so a target required by several concurrently-run
+ * siblings still only runs once.
  */
 function run_target(string $name): void
 {
-    $resolved = &resolved_targets_registry();
+    resolve_once($name, static function () use ($name): void {
+        $reflection = targets_registry()[$name];
+        $nestedNames = target_requires_names($reflection);
 
-    if (isset($resolved[$name])) {
-        return;
-    }
+        if ($nestedNames) {
+            run_targets_in_parallel($nestedNames);
+        }
 
-    $reflection = targets_registry()[$name];
-    $nestedNames = target_requires_names($reflection);
+        $target = $reflection->getAttributes(Target::class)[0]->newInstance();
+        $targetPath = $target->target ?? $name;
 
-    if ($nestedNames) {
-        parallel(...array_map(static fn (string $n): \Closure => static fn () => run_target($n), $nestedNames));
-    }
+        make(
+            target: $targetPath,
+            prerequisites: $target->deps,
+            context: $target->context,
+            callback: static function () use ($reflection, $target, $targetPath): void {
+                $reflection->invoke();
 
-    $target = $reflection->getAttributes(Target::class)[0]->newInstance();
-    $targetPath = $target->target ?? $name;
-
-    make(
-        target: $targetPath,
-        prerequisites: $target->deps,
-        context: $target->context,
-        callback: static function () use ($reflection, $target, $targetPath): void {
-            $reflection->invoke();
-
-            if ($target->update) {
-                foreach ((array) $targetPath as $t) {
-                    touch(make_absolute($t, $target->context));
+                if ($target->update) {
+                    foreach ((array) $targetPath as $t) {
+                        touch(make_absolute($t, $target->context));
+                    }
                 }
-            }
-        },
-    );
-
-    $resolved[$name] = true;
+            },
+        );
+    });
 }
 
 #[AsListener(event: BeforeExecuteTaskEvent::class)]
@@ -180,6 +243,6 @@ function run_requires_attributes(BeforeExecuteTaskEvent $event): void
     $names = target_requires_names($event->task);
 
     if ($names) {
-        parallel(...array_map(static fn (string $n): \Closure => static fn () => run_target($n), $names));
+        run_targets_in_parallel($names);
     }
 }
