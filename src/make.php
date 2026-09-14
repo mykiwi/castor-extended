@@ -8,16 +8,12 @@ use Symfony\Component\Finder\Finder;
 use function Castor\context;
 
 /**
- * Run $callback only if $target is missing or older than $prerequisites,
- * mirroring a Makefile's target/prerequisite/recipe logic. See
- * `make_absolute()` for how a relative path resolves.
+ * Run $callback only if $target is missing or older than $prerequisites, mirroring a Makefile's target/prerequisite/recipe logic. See `make_absolute()` for how a relative path resolves.
  *
- * A $prerequisites path that doesn't exist, or a glob pattern matching no
- * file, throws InvalidArgumentException rather than silently treating the
- * target as up to date.
+ * A $prerequisites path that doesn't exist, or a glob pattern matching no file, throws InvalidArgumentException rather than silently treating the target as up to date. Returns true if $callback ran, false if skipped.
  *
- * @param string|string[]        $target
- * @param string|string[]|Finder $prerequisites
+ * @param string|string[]        $target        real file path(s), no glob
+ * @param string|string[]|Finder $prerequisites glob patterns supported (e.g. `'src/*.php'`), or a Finder instance for recursive matching
  */
 function make(string|array $target, string|array|Finder $prerequisites, callable $callback, ?Context $context = null): bool
 {

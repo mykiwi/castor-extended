@@ -7,7 +7,7 @@ part of Castor core.
 
 ## Usage
 
-### `#[Target]`/`#[Requires]`
+### [`#[Target]`](src/Attribute/Target.php)/[`#[Requires]`](src/Attribute/Requires.php)
 
 Makefile-style rebuild logic: turn a plain function into a rebuild recipe
 with `#[Target]`, then run it before a task's own body — but only if needed
@@ -39,6 +39,11 @@ function serve(): void
     run('symfony serve');
 }
 ```
+
+Full parameter reference and failure/concurrency semantics live in the
+attributes' own docblocks (linked above). Need a `Finder`, or a one-off
+rebuild no task shares? Call [`make()`](src/make.php) directly — it's the
+primitive `#[Target]` itself is built on.
 
 ## Installation
 
