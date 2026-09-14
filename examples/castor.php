@@ -3,21 +3,22 @@
 namespace examples;
 
 use Castor\Attribute\AsTask;
+// new part for importing mykiwi/castor-extended code
+use Mykiwi\CastorExtended\Attribute\{Requires, Target};
 
 use function Castor\import;
-use function Castor\io;
-use function Mykiwi\CastorExtended\make;
 
-import('composer://mykiwi/castor-extended', file: 'src/functions.php');
+import('composer://mykiwi/castor-extended');
+
+#[Target(target: __DIR__ . '/hello.txt', deps: __FILE__, update: true)]
+function output(): void
+{
+    file_put_contents('hello.txt', date(\DATE_ATOM));
+}
 
 #[AsTask(description: 'Demo: consume mykiwi/castor-extended exactly as the README documents it')]
+#[Requires('output')]
 function build(): void
 {
-    $ran = make(
-        target: __DIR__ . '/output.txt',
-        prerequisites: __FILE__,
-        callback: static fn () => file_put_contents(__DIR__ . '/output.txt', "built\n"),
-    );
-
-    io()->writeln($ran ? 'output.txt built.' : 'output.txt is up to date.');
+    echo file_get_contents('hello.txt');
 }

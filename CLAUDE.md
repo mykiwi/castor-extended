@@ -33,11 +33,11 @@ ok
 ## Post edit commands
 
 ```
-castor test  # phpunit
-castor stan  # phpstan (level 8)
-castor cs --fix   # php-cs-fixer, apply
-castor ci    # test + stan + cs, in that order; must end with
-             # "[OK] All checks passed."
+make test     # phpunit
+make stan     # phpstan (level 8)
+make cs-fix   # php-cs-fixer, apply
+make ci       # test + stan + cs, in that order; must end with
+              # "[OK] All checks passed."
 ```
 
 phpstan error detail: `vendor/bin/phpstan analyse --no-progress

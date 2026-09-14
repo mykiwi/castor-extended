@@ -15,8 +15,7 @@ with `#[Target]`, then run it before a task's own body — but only if needed
 
 ```php
 use Castor\Attribute\AsTask;
-use Mykiwi\CastorExtended\Attribute\Requires;
-use Mykiwi\CastorExtended\Attribute\Target;
+use Mykiwi\CastorExtended\Attribute\{Requires, Target};
 
 use function Castor\run;
 
@@ -52,12 +51,12 @@ castor composer require mykiwi/castor-extended:dev-main
 ```
 
 Commit `castor.composer.json` and `castor.composer.lock`. Then add the import
-to `castor.php`, once — pointing at the package's function entrypoint:
+to `castor.php`, once:
 
 ```php
 use function Castor\import;
-
-import('composer://mykiwi/castor-extended', file: 'src/functions.php');
+use Mykiwi\CastorExtended\Attribute\{Requires, Target};
+import('composer://mykiwi/castor-extended');
 ```
 
 See [`examples`](examples) for a working copy of these three files.
@@ -69,12 +68,14 @@ See [`examples`](examples) for a working copy of these three files.
 A [devenv](https://devenv.sh/) shell (`devenv shell`) provides PHP 8.5,
 Composer and Castor with no manual install.
 
-This repo dogfoods its own tooling via a root [`castor.php`](castor.php)
-([Castor](https://castor.jolicode.com/) must be installed):
+Dev tooling is a plain [`Makefile`](Makefile), not Castor — root
+[`castor.php`](castor.php) is the library's own import entrypoint, so it
+can't also carry dev tasks:
 
 ```bash
-castor test  # tests (installs dependencies if needed)
-castor stan  # static analysis
-castor cs    # coding standards (add --fix to apply)
-castor ci    # run everything above
+make test     # tests (installs dependencies if needed)
+make stan     # static analysis
+make cs       # check coding standards
+make cs-fix   # apply coding standards
+make ci       # run everything above
 ```

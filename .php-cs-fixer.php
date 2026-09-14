@@ -18,6 +18,7 @@ return new PhpCsFixer\Config()
         'php_unit_test_class_requires_covers' => false,
         'phpdoc_add_missing_param_annotation' => false,
         'concat_space' => ['spacing' => 'one'],
+        'single_import_per_statement' => ['group_to_single_imports' => false],
     ])
     ->setFinder($finder)
 ;
