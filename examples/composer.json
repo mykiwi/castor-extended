@@ -1,0 +1,10 @@
+{
+    "require-dev": {
+        "symfony/thanks": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/thanks": true
+        }
+    }
+}

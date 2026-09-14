@@ -22,21 +22,21 @@ use function Castor\run;
 #[Target(deps: 'composer.lock', update: true)]
 function vendor(): void
 {
-    run(['composer', 'install', '--no-interaction', '--prefer-dist']);
+    run('composer install --no-interaction');
 }
 
-#[Target(target: 'public/bundles', deps: 'composer.lock', update: true)]
+#[Target(target: 'public/bundles', deps: ['vendor', 'config/bundles.php'], update: true)]
 #[Requires('vendor')]
 function assets(): void
 {
-    run(['bin/console', 'assets:install', 'public']);
+    run('bin/console assets:install public');
 }
 
 #[AsTask(description: 'Start the local dev server')]
 #[Requires('assets')]
 function serve(): void
 {
-    run(['symfony', 'serve']);
+    run('symfony serve');
 }
 ```
 

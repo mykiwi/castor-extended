@@ -1,24 +1,23 @@
 <?php
 
-namespace examples;
-
 use Castor\Attribute\AsTask;
+
 // new part for importing mykiwi/castor-extended code
 use Mykiwi\CastorExtended\Attribute\{Requires, Target};
-
 use function Castor\import;
-
 import('composer://mykiwi/castor-extended');
 
-#[Target(target: __DIR__ . '/hello.txt', deps: __FILE__, update: true)]
-function output(): void
+
+#[Target(target: 'vendor', deps: 'composer.lock', update: true)]
+function vendor(): void
 {
-    file_put_contents('hello.txt', date(\DATE_ATOM));
+    run('composer install');
 }
 
-#[AsTask(description: 'Demo: consume mykiwi/castor-extended exactly as the README documents it')]
-#[Requires('output')]
-function build(): void
+
+#[AsTask()]
+#[Requires('vendor')]
+function thanks(): void
 {
-    echo file_get_contents('hello.txt');
+    run('composer thanks');
 }

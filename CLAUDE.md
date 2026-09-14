@@ -4,7 +4,7 @@
 ## Makefile usage example
 ```
 $ ls
-# none
+Makefile
 
 $ cat Makefile
 foo:

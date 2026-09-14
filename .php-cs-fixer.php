@@ -4,6 +4,7 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreVCSIgnored(true)
     ->ignoreDotFiles(false)
     ->in(__DIR__)
+    ->exclude('examples')
     ->append([__FILE__])
 ;
 
