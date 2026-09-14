@@ -78,9 +78,8 @@ Dev tooling is a plain [`Makefile`](Makefile), not Castor — root
 can't also carry dev tasks:
 
 ```bash
-make test     # tests (installs dependencies if needed)
-make stan     # static analysis
-make cs       # check coding standards
-make cs-fix   # apply coding standards
+make cs       # apply php-cs-fixer
+make test     # run phpunit
+make stan     # run phpstan
 make ci       # run everything above
 ```

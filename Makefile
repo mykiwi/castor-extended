@@ -12,12 +12,9 @@ stan: vendor/autoload.php
 
 .PHONY: cs
 cs: vendor/autoload.php
-	vendor/bin/php-cs-fixer fix --dry-run --diff
-
-.PHONY: cs-fix
-cs-fix: vendor/autoload.php
 	vendor/bin/php-cs-fixer fix
 
 .PHONY: ci
-ci: test stan cs
+ci: cs
+	$(MAKE) --no-print-directory --output-sync=target -j2 test stan
 	@echo "[OK] All checks passed."

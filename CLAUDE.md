@@ -33,10 +33,10 @@ ok
 ## Post edit commands
 
 ```
-make test     # phpunit
-make stan     # phpstan (level 8)
-make cs-fix   # php-cs-fixer, apply
-make ci       # test + stan + cs, in that order; must end with
+make cs       # apply php-cs-fixer
+make test     # run phpunit
+make stan     # run phpstan
+make ci       # cs, then test + stan in parallel; must end with
               # "[OK] All checks passed."
 ```
 
