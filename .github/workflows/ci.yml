@@ -21,9 +21,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: none
 
-      - uses: castor-php/setup-castor@v1.1.0
-
-      - run: castor test
+      - run: make test
 
   static-analysis:
     name: Static analysis
@@ -37,9 +35,7 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - uses: castor-php/setup-castor@v1.1.0
-
-      - run: castor stan
+      - run: make stan
 
   cs:
     name: Coding standards
@@ -53,6 +49,4 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - uses: castor-php/setup-castor@v1.1.0
-
-      - run: castor cs
+      - run: make cs
