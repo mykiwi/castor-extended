@@ -22,9 +22,6 @@
         "symfony/filesystem": "^7.0 || ^8.0"
     },
     "autoload": {
-        "files": [
-            "src/make.php"
-        ],
         "psr-4": {
             "Mykiwi\\CastorExtended\\": "src/"
         }

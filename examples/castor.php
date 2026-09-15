@@ -2,11 +2,11 @@
 
 use Castor\Attribute\AsTask;
 
+use function Castor\run;
+
 // new part for importing mykiwi/castor-extended code
 use Mykiwi\CastorExtended\Attribute\{Requires, Target};
 use function Castor\import;
-use function Castor\run;
-
 import('composer://mykiwi/castor-extended');
 
 #[Target(target: 'vendor', deps: 'composer.lock', update: true)]
