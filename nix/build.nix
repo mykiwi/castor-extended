@@ -12,6 +12,12 @@ let
     "^src/.*"
   ];
 
+  # composer's downloads from api.github.com intermittently 504 anonymously
+  # under CI-level concurrency; forward a token (e.g. Actions' own
+  # GITHUB_TOKEN) to get the authenticated rate limit instead. Empty when
+  # unset, which composer treats as no auth.
+  composerAuth = builtins.getEnv "COMPOSER_AUTH";
+
   castorSrc = pkgs.fetchFromGitHub {
     owner = "jolicode";
     repo = "castor";
@@ -57,6 +63,11 @@ php.buildComposerProject2 (finalAttrs: {
   composerLock = ./castor-with-castor-extended-composer.lock;
 
   vendorHash = "sha256-mXflTi7aeBdA0hmrIInuMA/qRPx3PcdcXRdyXtZfp88=";
+
+  composerVendor = php.mkComposerVendor {
+    inherit (finalAttrs) pname src version composerLock vendorHash;
+    env.COMPOSER_AUTH = composerAuth;
+  };
 
   meta = {
     description = "Castor task runner, bundled with mykiwi/castor-extended's Target/Requires helpers";

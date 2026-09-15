@@ -55,8 +55,9 @@ jobs:
           name: mykiwi
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      # composer's zipball downloads from api.github.com intermittently 504:
-      # retry the whole build rather than fail the job on a transient error.
+      # Authenticate composer's GitHub downloads to avoid the anonymous rate
+      # limit, and retry the whole build as a backstop against remaining
+      # transient failures.
       - run: |
           for i in 1 2 3; do
             nix-build nix/build.nix && exit 0
@@ -64,3 +65,5 @@ jobs:
             sleep 10
           done
           exit 1
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
