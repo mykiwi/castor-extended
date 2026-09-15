@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "mykiwi/castor-extended": "dev-main"
+        "mykiwi/castor-extended": "^1.0"
     },
     "repositories": [{
         "name": "mykiwi-castor-extended",
