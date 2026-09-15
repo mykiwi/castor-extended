@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-15
+
 ### Changed
 
 - Drop Symfony 6.4 support, add Symfony 8 support: `symfony/finder` (and
