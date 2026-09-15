@@ -18,3 +18,7 @@ cs: vendor/autoload.php
 ci: cs
 	$(MAKE) --no-print-directory --output-sync=target -j2 test stan
 	@echo "[OK] All checks passed."
+
+.PHONY: build
+build:
+	nix-build nix/build.nix

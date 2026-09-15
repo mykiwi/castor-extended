@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['*']
   pull_request:
 
 jobs:
@@ -14,9 +15,9 @@ jobs:
         php-version: ['8.4', '8.5']
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php-version }}
           coverage: none
@@ -28,11 +29,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.4'
           coverage: none
 
       - run: make stan
+
+  nix-build:
+    name: Build with castor (push to cachix)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+
+      - uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1 # v16
+        with:
+          name: mykiwi
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - run: nix-build nix/build.nix

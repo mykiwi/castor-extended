@@ -82,4 +82,5 @@ make cs       # apply php-cs-fixer
 make test     # run phpunit
 make stan     # run phpstan
 make ci       # run everything above
+make build    # build castor bundled with this library (see nix/build.nix)
 ```

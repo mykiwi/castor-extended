@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Drop Symfony 6.4 support, add Symfony 8 support: `symfony/finder` (and
+  dev's `symfony/filesystem`) now require `^7.0 || ^8.0`. Needed to build
+  against castor 1.6+, which moved to Symfony 8.
+
 - As a regular Composer dependency, the project's `castor.php` must now
   `require_once __DIR__ . '/vendor/mykiwi/castor-extended/src/functions.php';`
   for `#[Target]`/`#[Requires]` to work: Castor never saw the listeners
