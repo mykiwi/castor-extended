@@ -12,24 +12,24 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mykiwi/castor-extended.git",
-                "reference": "c45b20dc33d9c06ac962c117e086a71ce2eed288"
+                "reference": "e6a1ce7f1c6fccf8a853d959905316d0721e028f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mykiwi/castor-extended/zipball/c45b20dc33d9c06ac962c117e086a71ce2eed288",
-                "reference": "c45b20dc33d9c06ac962c117e086a71ce2eed288",
+                "url": "https://api.github.com/repos/mykiwi/castor-extended/zipball/e6a1ce7f1c6fccf8a853d959905316d0721e028f",
+                "reference": "e6a1ce7f1c6fccf8a853d959905316d0721e028f",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.4",
-                "symfony/finder": "^6.4 || ^7.0"
+                "symfony/finder": "^7.0 || ^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.59",
-                "jolicode/castor": "^1.5,<1.6",
+                "jolicode/castor": "^1.7",
                 "phpstan/phpstan": "^2.2",
-                "phpunit/phpunit": "^11.0",
-                "symfony/filesystem": "^6.4 || ^7.0"
+                "phpunit/phpunit": "^13.0",
+                "symfony/filesystem": "^7.0 || ^8.0"
             },
             "default-branch": true,
             "type": "library",
@@ -62,10 +62,10 @@
                 "task-runner"
             ],
             "support": {
-                "source": "https://github.com/mykiwi/castor-extended/tree/main",
+                "source": "https://github.com/mykiwi/castor-extended/tree/1.0.0",
                 "issues": "https://github.com/mykiwi/castor-extended/issues"
             },
-            "time": "2026-09-13T21:36:21+00:00"
+            "time": "2026-09-15T21:13:56+00:00"
         },
         {
             "name": "symfony/finder",
