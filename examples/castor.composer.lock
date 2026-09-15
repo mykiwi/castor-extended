@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d2cbc4b2128b0fcfa5a6e46467266ca",
+    "content-hash": "a08ee0e7daaf499ff092b60dfc3c956e",
     "packages": [
         {
             "name": "mykiwi/castor-extended",

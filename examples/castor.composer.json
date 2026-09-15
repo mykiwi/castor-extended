@@ -1,13 +1,5 @@
 {
-    "name": "mykiwi/castor-extended-example",
-    "description": "Example consuming mykiwi/castor-extended as a Castor remote import",
     "type": "castor-project",
-    "authors": [
-        {
-            "name": "Romain Gautier",
-            "email": "mail@romain.sh"
-        }
-    ],
     "require": {
         "mykiwi/castor-extended": "^1.0"
     }
