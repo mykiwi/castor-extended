@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mykiwi/castor-extended.git",
-                "reference": "e6a1ce7f1c6fccf8a853d959905316d0721e028f"
+                "reference": "87a03229309c53d34dbc1fcb45ddf00d70b5c955"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mykiwi/castor-extended/zipball/e6a1ce7f1c6fccf8a853d959905316d0721e028f",
-                "reference": "e6a1ce7f1c6fccf8a853d959905316d0721e028f",
+                "url": "https://api.github.com/repos/mykiwi/castor-extended/zipball/87a03229309c53d34dbc1fcb45ddf00d70b5c955",
+                "reference": "87a03229309c53d34dbc1fcb45ddf00d70b5c955",
                 "shasum": ""
             },
             "require": {
@@ -34,9 +34,6 @@
             "default-branch": true,
             "type": "library",
             "autoload": {
-                "files": [
-                    "src/make.php"
-                ],
                 "psr-4": {
                     "Mykiwi\\CastorExtended\\": "src/"
                 }
@@ -62,10 +59,10 @@
                 "task-runner"
             ],
             "support": {
-                "source": "https://github.com/mykiwi/castor-extended/tree/1.0.0",
+                "source": "https://github.com/mykiwi/castor-extended/tree/main",
                 "issues": "https://github.com/mykiwi/castor-extended/issues"
             },
-            "time": "2026-09-15T21:13:56+00:00"
+            "time": "2026-09-15T22:20:26+00:00"
         },
         {
             "name": "symfony/finder",
