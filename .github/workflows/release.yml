@@ -23,7 +23,15 @@ jobs:
           name: mykiwi
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      - run: nix-build nix/build.nix
+      # composer's zipball downloads from api.github.com intermittently 504:
+      # retry the whole build rather than fail the job on a transient error.
+      - run: |
+          for i in 1 2 3; do
+            nix-build nix/build.nix && exit 0
+            echo "nix-build failed (attempt $i/3), retrying..."
+            sleep 10
+          done
+          exit 1
 
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
