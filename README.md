@@ -51,7 +51,6 @@ primitive `#[Target]` itself is built on.
 
 ```bash
 castor composer init  # creates castor.composer.json, once
-castor composer config repositories.mykiwi-castor-extended vcs https://github.com/mykiwi/castor-extended
 castor composer require mykiwi/castor-extended
 ```
 

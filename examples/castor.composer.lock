@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "709a36fa9125493629776e827a34b5fb",
+    "content-hash": "9d2cbc4b2128b0fcfa5a6e46467266ca",
     "packages": [
         {
             "name": "mykiwi/castor-extended",
@@ -37,11 +37,7 @@
                     "Mykiwi\\CastorExtended\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Mykiwi\\CastorExtended\\Tests\\": "tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -58,30 +54,30 @@
                 "task-runner"
             ],
             "support": {
-                "source": "https://github.com/mykiwi/castor-extended/tree/1.0.1",
-                "issues": "https://github.com/mykiwi/castor-extended/issues"
+                "issues": "https://github.com/mykiwi/castor-extended/issues",
+                "source": "https://github.com/mykiwi/castor-extended/tree/1.0.1"
             },
             "time": "2026-09-15T22:25:28+00:00"
         },
         {
             "name": "symfony/finder",
-            "version": "v7.4.17",
+            "version": "v8.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "5ce28827081f6d1f0c32eaf3882750f19cb5bbe6"
+                "reference": "4fbe46a3eb64abf8a57f0364075b91f4a233e062"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/5ce28827081f6d1f0c32eaf3882750f19cb5bbe6",
-                "reference": "5ce28827081f6d1f0c32eaf3882750f19cb5bbe6",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/4fbe46a3eb64abf8a57f0364075b91f4a233e062",
+                "reference": "4fbe46a3eb64abf8a57f0364075b91f4a233e062",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.4.1"
             },
             "require-dev": {
-                "symfony/filesystem": "^6.4|^7.0|^8.0"
+                "symfony/filesystem": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -109,7 +105,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v7.4.17"
+                "source": "https://github.com/symfony/finder/tree/v8.1.7"
             },
             "funding": [
                 {
@@ -129,7 +125,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T12:09:28+00:00"
+            "time": "2026-09-10T19:14:39+00:00"
         }
     ],
     "packages-dev": [],

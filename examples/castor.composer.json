@@ -10,10 +10,5 @@
     ],
     "require": {
         "mykiwi/castor-extended": "^1.0"
-    },
-    "repositories": [{
-        "name": "mykiwi-castor-extended",
-        "type": "vcs",
-        "url": "https://github.com/mykiwi/castor-extended"
-    }]
+    }
 }
