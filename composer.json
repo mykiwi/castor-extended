@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.59",
-        "jolicode/castor": "^1.7",
+        "jolicode/castor": "^1.8",
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^13.0",
         "symfony/filesystem": "^7.0 || ^8.0"

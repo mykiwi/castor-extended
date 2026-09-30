@@ -58,9 +58,11 @@ function make(string|array $target, string|array|Finder $prerequisites, callable
 
 /**
  * Resolves a relative path against $context's working directory (the
- * current Castor context by default), not PHP's own cwd: Castor never
- * chdir()s the process itself, so a relative path would otherwise silently
- * break when a task runs from a subdirectory of the project.
+ * current Castor context by default), not PHP's own cwd: without
+ * CASTOR_USE_CHDIR (Castor 2.0's default, opt-in since 1.8) Castor leaves
+ * the process' cwd wherever `castor` was invoked from, so a relative path
+ * would otherwise silently break when a task runs from a subdirectory of
+ * the project. With it, the two agree.
  */
 function make_absolute(string $path, ?Context $context = null): string
 {
