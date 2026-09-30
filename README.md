@@ -58,15 +58,10 @@ Commit `castor.composer.json` and `castor.composer.lock`. Then add the import
 to `castor.php`, once:
 
 ```php
-defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
-
 use function Castor\import;
 use Mykiwi\CastorExtended\Attribute\{Requires, Target};
 import('composer://mykiwi/castor-extended');
 ```
-
-`CASTOR_USE_CHDIR` is unrelated to this package — Castor 1.8 deprecates
-leaving it undefined, and 2.0 makes `true` the default.
 
 See [`examples`](examples) for a working copy of these three files.
 
