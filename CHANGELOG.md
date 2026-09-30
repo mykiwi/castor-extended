@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Build and test against castor 1.8.1 (dev requirement `^1.7` -> `^1.8`,
+  `nix/build.nix` bundles v1.8.1). Castor 1.8 resolves the remote packages of
+  `castor.composer.json` against the ones it bundles, so
+  `examples/castor.composer.lock` now locks `symfony/finder` as a metapackage
+  standing for the version castor ships.
+- Document `CASTOR_USE_CHDIR` in the README and `examples/castor.php`: castor
+  1.8 deprecates leaving the constant undefined and 2.0 defaults it to
+  `true`. It changes nothing for this package — `make()` already resolves a
+  relative path against the context's working directory rather than PHP's
+  cwd, which is what castor chdir()s to.
+
 ## [1.0.1] - 2026-09-16
 
 ### Fixed

@@ -21,8 +21,8 @@ let
   castorSrc = pkgs.fetchFromGitHub {
     owner = "jolicode";
     repo = "castor";
-    tag = "v1.7.0";
-    hash = "sha256-KxmNNvSHW67WwDJToteQI3NJmWGtNikOQVU8F+QUK/8=";
+    tag = "v1.8.1";
+    hash = "sha256-naG0SBWARro92PGUA9dAKMYCGYEA/vsXOA8inAIcXkk=";
   };
 
   # castor's own composer.json/lock know nothing about this library: splice it
@@ -51,7 +51,7 @@ let
 in
 php.buildComposerProject2 (finalAttrs: {
   pname = "castor-with-castor-extended";
-  version = "1.7.0";
+  version = "1.8.1";
 
   inherit src;
 
@@ -62,7 +62,7 @@ php.buildComposerProject2 (finalAttrs: {
   # running `nix-build`, and copying the lock path printed in its error.
   composerLock = ./castor-with-castor-extended-composer.lock;
 
-  vendorHash = "sha256-mXflTi7aeBdA0hmrIInuMA/qRPx3PcdcXRdyXtZfp88=";
+  vendorHash = "sha256-s3bD4oNo+xql5tfdUYWnXKyGYjADJZ1ENqinxh0My4o=";
 
   composerVendor = php.mkComposerVendor {
     inherit (finalAttrs) pname src version composerLock vendorHash;
